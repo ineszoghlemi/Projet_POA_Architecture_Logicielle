@@ -111,15 +111,16 @@ public class TestSchoolController {
     }
 
     // ── j) POST /school/instructor/{instructorId}/course/add ────────
-    // CORRECTION : crée un nouveau Course et le lie à l'Instructor existant
+    // Crée un nouveau Course et le lie à l'Instructor existant
+    // Retourne l'Instructor avec la liste complète de ses courses
     // Body JSON : { "name": "Nom du cours" }
     @PostMapping("/instructor/{instructorId}/course/add")
     public ResponseEntity<?> addNewCourseToInstructor(
             @PathVariable Integer instructorId,
             @RequestBody Course course) {
         try {
-            Course saved = schoolService.addNewCourseToInstructor(instructorId, course);
-            return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+            Instructor updated = schoolService.addNewCourseToInstructor(instructorId, course);
+            return ResponseEntity.status(HttpStatus.CREATED).body(updated);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(e.getMessage());

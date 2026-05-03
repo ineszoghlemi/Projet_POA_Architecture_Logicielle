@@ -74,7 +74,7 @@ public class SchoolService {
         Instructor instructor = instructorRepo.findById(id)
                 .orElseThrow(() ->
                         new RuntimeException("Instructor non trouvé : " + id));
-        instructor.getCourses().size();
+        instructor.getCourses().size(); // forcer chargement LAZY
         return instructor;
     }
 
@@ -92,8 +92,8 @@ public class SchoolService {
     }
 
     // ── j) Créer un nouveau Course et le lier à un Instructor existant
-    // CORRECTION : crée d'abord le Course en base, puis le lie à l'Instructor
-    public Course addNewCourseToInstructor(Integer instructorId, Course course) {
+    // Retourne l'Instructor avec la liste complète de ses courses
+    public Instructor addNewCourseToInstructor(Integer instructorId, Course course) {
         Instructor instructor = getInstructorById(instructorId);
 
         // 1. Persister le nouveau Course en base
@@ -101,8 +101,11 @@ public class SchoolService {
 
         // 2. Lier le Course à l'Instructor
         instructor.getCourses().add(savedCourse);
-        instructorRepo.save(instructor);
+        Instructor saved = instructorRepo.save(instructor);
 
-        return savedCourse;
+        // 3. Forcer le rechargement de la liste courses dans la transaction
+        saved.getCourses().size();
+
+        return saved;
     }
 }
