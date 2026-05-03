@@ -1,6 +1,5 @@
 package edu.isgb.School.services;
 
-
 import edu.isgb.School.entities.*;
 import edu.isgb.School.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +19,6 @@ public class SchoolService {
 
     // ── a) Créer une School ─────────────────────────────────────────
     public School createSchool(School school) {
-        // Lier chaque department à la school (relation bidirectionnelle)
         if (school.getDepartements() != null) {
             for (Departement d : school.getDepartements()) {
                 d.setSchool(school);
@@ -34,11 +32,9 @@ public class SchoolService {
         School school = schoolRepo.findById(id)
                 .orElseThrow(() ->
                         new RuntimeException("School non trouvée : " + id));
-        // ✅ Forcer le chargement des collections LAZY dans la transaction
         school.getStudents().size();
         school.getDepartements().size();
         school.getInstructors().size();
-
         return school;
     }
 
@@ -54,11 +50,9 @@ public class SchoolService {
     // ── d) Lister tous les Students ─────────────────────────────────
     public List<Student> getAllStudents() {
         List<Student> students = studentRepo.findAll();
-        // ✅ Forcer le chargement des adresses (OneToOne LAZY)
         students.forEach(s -> {
             if (s.getAddress() != null) s.getAddress().getCity();
         });
-
         return students;
     }
 
@@ -80,8 +74,7 @@ public class SchoolService {
         Instructor instructor = instructorRepo.findById(id)
                 .orElseThrow(() ->
                         new RuntimeException("Instructor non trouvé : " + id));
-        instructor.getCourses().size(); // ✅ forcer chargement LAZY
-
+        instructor.getCourses().size();
         return instructor;
     }
 
@@ -98,18 +91,18 @@ public class SchoolService {
         return new ArrayList<>(instructor.getCourses());
     }
 
-    // ── j) Ajouter un Course à un Instructor ────────────────────────
-    public Instructor addCourseToInstructor(
-            Integer instructorId, Integer courseId) {
+    // ── j) Créer un nouveau Course et le lier à un Instructor existant
+    // CORRECTION : crée d'abord le Course en base, puis le lie à l'Instructor
+    public Course addNewCourseToInstructor(Integer instructorId, Course course) {
         Instructor instructor = getInstructorById(instructorId);
-        Course     course     = getCourseById(courseId);
-        // Vérifier le doublon avant d'ajouter
-        boolean alreadyLinked = instructor.getCourses().stream()
-                .anyMatch(c -> c.getIdCourse().equals(courseId));
-        if (!alreadyLinked) {
-            instructor.getCourses().add(course);
-        }
 
-        return instructorRepo.save(instructor);
+        // 1. Persister le nouveau Course en base
+        Course savedCourse = courseRepo.save(course);
+
+        // 2. Lier le Course à l'Instructor
+        instructor.getCourses().add(savedCourse);
+        instructorRepo.save(instructor);
+
+        return savedCourse;
     }
 }

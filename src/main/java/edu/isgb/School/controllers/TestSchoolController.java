@@ -1,7 +1,5 @@
 package edu.isgb.School.controllers;
 
-
-
 import edu.isgb.School.entities.*;
 import edu.isgb.School.services.SchoolService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,8 +60,7 @@ public class TestSchoolController {
 
     // ── e) POST /school/instructor/add ──────────────────────────────
     @PostMapping("/instructor/add")
-    public ResponseEntity<?> addInstructor(
-            @RequestBody Instructor instructor) {
+    public ResponseEntity<?> addInstructor(@RequestBody Instructor instructor) {
         try {
             Instructor saved = schoolService.createInstructor(instructor);
             return ResponseEntity.status(HttpStatus.CREATED).body(saved);
@@ -104,31 +101,28 @@ public class TestSchoolController {
 
     // ── i) GET /school/instructor/{id}/courses ──────────────────────
     @GetMapping("/instructor/{id}/courses")
-    public ResponseEntity<?> getInstructorCourses(
-            @PathVariable Integer id) {
+    public ResponseEntity<?> getInstructorCourses(@PathVariable Integer id) {
         try {
-            return ResponseEntity.ok(
-                    schoolService.getCoursesByInstructor(id));
+            return ResponseEntity.ok(schoolService.getCoursesByInstructor(id));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(e.getMessage());
         }
     }
 
-    // ── j) Lier un Course à un Instructor ── PUT /school/instructor/{iId}/course/{cId}
-
-    @PutMapping("/instructor/{instructorId}/course/{courseId}")
-    public ResponseEntity<?> addCourseToInstructor(
+    // ── j) POST /school/instructor/{instructorId}/course/add ────────
+    // CORRECTION : crée un nouveau Course et le lie à l'Instructor existant
+    // Body JSON : { "name": "Nom du cours" }
+    @PostMapping("/instructor/{instructorId}/course/add")
+    public ResponseEntity<?> addNewCourseToInstructor(
             @PathVariable Integer instructorId,
-            @PathVariable Integer courseId) {
+            @RequestBody Course course) {
         try {
-            Instructor updated = schoolService
-                    .addCourseToInstructor(instructorId, courseId);
-            return ResponseEntity.ok(updated);
+            Course saved = schoolService.addNewCourseToInstructor(instructorId, course);
+            return ResponseEntity.status(HttpStatus.CREATED).body(saved);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(e.getMessage());
         }
     }
-
 }
