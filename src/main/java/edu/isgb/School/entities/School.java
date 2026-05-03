@@ -28,6 +28,7 @@ public class School implements Serializable {
     @Column(name = "cl_name_school")
     private String name;
 
+    @Column(name = "cl_phone")
     private Integer phone;
 
     @OneToMany(mappedBy = "school",

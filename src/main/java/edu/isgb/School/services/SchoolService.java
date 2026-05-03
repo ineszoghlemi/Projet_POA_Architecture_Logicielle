@@ -103,7 +103,7 @@ public class SchoolService {
             Integer instructorId, Integer courseId) {
         Instructor instructor = getInstructorById(instructorId);
         Course     course     = getCourseById(courseId);
-        // ✅ Vérifier le doublon avant d'ajouter
+        // Vérifier le doublon avant d'ajouter
         boolean alreadyLinked = instructor.getCourses().stream()
                 .anyMatch(c -> c.getIdCourse().equals(courseId));
         if (!alreadyLinked) {

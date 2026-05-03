@@ -20,7 +20,7 @@ public class Student implements Serializable {
     @Column(name = "PK_Student")
     private Integer idStudent;
 
-    @Column(name = "cl_name_school")
+    @Column(name = "cl_name_student")
     private String name;
 
     @Column(name = "cl_birthdate")
@@ -34,7 +34,7 @@ public class Student implements Serializable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "school_PK_school")
-    @JsonIgnoreProperties({"students", "departments", "instructors"})  // ✅ CORRIGÉ
+    @JsonIgnoreProperties({"students", "departements", "instructors"})
 
     private School school;
 
